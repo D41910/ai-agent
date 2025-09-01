@@ -1,7 +1,4 @@
 spring:
-  ai:
-    dashscope:
-      api-key: sk-2553356e8de943c59d2a37a571dfb85c
   profiles:
     active: local
 server:
