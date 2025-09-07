@@ -26,3 +26,5 @@ logging:
   charset:
     file: UTF-8
     console: UTF-8
+  level:
+    org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
