@@ -1,6 +1,7 @@
 package com.dsj.aiagent.app;
 
 
+import com.dsj.aiagent.advisor.MyLoggerAdvisor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -9,6 +10,8 @@ import org.springframework.ai.chat.memory.MessageWindowChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 import static org.springframework.ai.chat.memory.ChatMemory.CONVERSATION_ID;
 
@@ -32,9 +35,9 @@ public class LoveApp {
         chatClient = ChatClient.builder(dashscopeChatModel)
                 .defaultSystem(SYSTEM_PROMPT)
                 .defaultAdvisors(
-                        MessageChatMemoryAdvisor.builder(chatMemory).build()
+                        MessageChatMemoryAdvisor.builder(chatMemory).build(),
 //                        //自定义拦截器 Advisor，可按需开启
-//                        new MyLoggerAdvisor(),
+                        new MyLoggerAdvisor()
 //                        //自定义推力增强器 Advisor，可按需开启
 //                        new ReReadingAdvisor()
                 ).build();
@@ -57,5 +60,30 @@ public class LoveApp {
         log.info("content: " + content);
         return content;
     }
+
+    record LoveReport(String title, List<String> suggestions) {
+
+    }
+
+    /**
+     * AI 报告功能演示结构化输出
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public LoveReport doChatWithResponse(String message, String chatId){
+        LoveReport loveReport = chatClient
+                .prompt()
+                .system(SYSTEM_PROMPT + "每次对话后要生成恋爱结果，标题为{用户名}的恋爱报告，内容为建议列表")
+                .user(message)
+                .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, chatId))
+                .call()
+                .entity(LoveReport.class);
+
+        log.info("loveReport: " + loveReport);
+        return loveReport;
+    }
+
+
 
 }
