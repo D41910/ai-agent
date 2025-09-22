@@ -11,7 +11,6 @@ import org.springframework.ai.chat.client.advisor.api.Advisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -34,8 +33,8 @@ public class LoveApp {
 
 
     // AI 恋爱知识库问答功能
-    @Resource
-    private VectorStore loveReportVectorStore;
+//    @Resource
+//    private VectorStore loveReportVectorStore;
 
     @Resource
     private Advisor loveAppRagCloudAdvisor;
