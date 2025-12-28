@@ -8,9 +8,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.api.Advisor;
+import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -33,8 +35,8 @@ public class LoveApp {
 
 
     // AI 恋爱知识库问答功能
-//    @Resource
-//    private VectorStore loveReportVectorStore;
+    @Resource(name = "pgVectorVectorStore")
+    private VectorStore loveReportVectorStore;
 
     @Resource
     private Advisor loveAppRagCloudAdvisor;
@@ -115,9 +117,9 @@ public class LoveApp {
                 //开启日志便于观察效果
                 .advisors(new MyLoggerAdvisor())
                 //应用RAG知识库代码
-//                .advisors(new QuestionAnswerAdvisor(loveReportVectorStore))
+                .advisors(new QuestionAnswerAdvisor(loveReportVectorStore))
                 //应用增强RAG增强服务（基于云知识库服务）
-                .advisors(loveAppRagCloudAdvisor)
+//                .advisors(loveAppRagCloudAdvisor)
                 .call()
                 .chatResponse();
 
