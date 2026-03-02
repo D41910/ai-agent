@@ -2,6 +2,7 @@ package com.dsj.aiagent.rag;
 
 import jakarta.annotation.Resource;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.embedding.BatchingStrategy;
 import org.springframework.ai.embedding.EmbeddingModel;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.pgvector.PgVectorStore;
@@ -25,7 +26,7 @@ public class PgVectorVectorStoreConfig {
     private LoveAppDocumentLoader loveAppDocumentLoader;
 
     @Bean
-    public VectorStore pgVectorVectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel) {
+    public VectorStore pgVectorVectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel, BatchingStrategy batchingStrategy) {
         PgVectorStore vectorStore = PgVectorStore.builder(jdbcTemplate, embeddingModel)
                 .dimensions(1536)                    // Optional: defaults to model dimensions or 1536
                 .distanceType(COSINE_DISTANCE)       // Optional: defaults to COSINE_DISTANCE
@@ -33,7 +34,8 @@ public class PgVectorVectorStoreConfig {
                 .initializeSchema(true)              // Optional: defaults to false
                 .schemaName("public")                // Optional: defaults to "public"
                 .vectorTableName("vector_store")     // Optional: defaults to "vector_store"
-                .maxDocumentBatchSize(10000)         // Optional: defaults to 10000
+                .maxDocumentBatchSize(10000)
+                .batchingStrategy(batchingStrategy)// Optional: defaults to 10000
                 .build();
         List<Document> documents = loveAppDocumentLoader.loadMarkdown();
         vectorStore.add(documents);
