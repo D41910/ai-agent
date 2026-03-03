@@ -12,6 +12,10 @@ import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvi
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.document.Document;
+import org.springframework.ai.rag.Query;
+import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
+import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.stereotype.Component;
 
@@ -40,6 +44,9 @@ public class LoveApp {
 
     @Resource
     private Advisor loveAppRagCloudAdvisor;
+
+    @Resource
+    private ChatModel dashscopeChatModel;
 
     public LoveApp(ChatModel dashscopeChatModel) {
 
@@ -126,6 +133,27 @@ public class LoveApp {
         String content = chatResponse.getResult().getOutput().getText();
         log.info("content: " + content);
         return content;
+    }
+
+    /**
+     * 用户问题扩展demo
+     *
+     * @param message
+     * @param chatId
+     * @return
+     */
+    public void doChatWithRagQueryExpander(String message, String chatId) {
+        MultiQueryExpander multiQueryExpander = MultiQueryExpander
+                .builder()
+                .chatClientBuilder(ChatClient.builder(dashscopeChatModel))
+                .numberOfQueries(3)
+                .build();
+        List<Query> expand = multiQueryExpander.expand(new Query(message));
+        VectorStoreDocumentRetriever build = VectorStoreDocumentRetriever.builder().vectorStore(loveReportVectorStore).build();
+        for (Query query : expand) {
+            List<Document> retrieve = build.retrieve(query);
+            System.out.println(retrieve.size());
+        }
     }
 
 

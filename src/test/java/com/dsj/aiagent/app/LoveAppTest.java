@@ -48,4 +48,11 @@ class LoveAppTest {
         Assertions.assertNotNull(answer);
     }
 
+    @Test
+    void doChatWithRagQueryExpander() {
+        String chatId = UUID.randomUUID().toString();
+        String message = "我已经结婚了，但是婚后关系不太亲密，怎么办？";
+        loveApp.doChatWithRagQueryExpander(message, chatId);
+    }
+
 }

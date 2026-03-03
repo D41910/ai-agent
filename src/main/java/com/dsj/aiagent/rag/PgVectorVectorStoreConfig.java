@@ -24,6 +24,9 @@ public class PgVectorVectorStoreConfig {
 
     @Resource
     private LoveAppDocumentLoader loveAppDocumentLoader;
+    
+    @Resource
+    private MyKeywordEnricher myKeywordEnricher;
 
     @Bean
     public VectorStore pgVectorVectorStore(JdbcTemplate jdbcTemplate, EmbeddingModel embeddingModel, BatchingStrategy batchingStrategy) {
@@ -38,7 +41,8 @@ public class PgVectorVectorStoreConfig {
                 .batchingStrategy(batchingStrategy)// Optional: defaults to 10000
                 .build();
         List<Document> documents = loveAppDocumentLoader.loadMarkdown();
-        vectorStore.add(documents);
+        List<Document> enrichDocuments = myKeywordEnricher.enrichDocuments(documents,5,"Chinese");
+        vectorStore.add(enrichDocuments);
         return vectorStore;
     }
 }
