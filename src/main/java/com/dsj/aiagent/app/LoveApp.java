@@ -3,6 +3,7 @@ package com.dsj.aiagent.app;
 
 import com.dsj.aiagent.advisor.MyLoggerAdvisor;
 import com.dsj.aiagent.chatmemory.FileBasedChatMemory;
+import com.dsj.aiagent.rag.LoveAppRagCustomAdvisorFactory;
 import com.dsj.aiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -131,7 +132,11 @@ public class LoveApp {
                 //开启日志便于观察效果
                 .advisors(new MyLoggerAdvisor())
                 //应用RAG知识库代码
-                .advisors(new QuestionAnswerAdvisor(loveReportVectorStore))
+//                .advisors(new QuestionAnswerAdvisor(loveReportVectorStore))
+                //文档过滤
+                .advisors(
+                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
+                                loveReportVectorStore,"已婚"))
                 //应用增强RAG增强服务（基于云知识库服务）
 //                .advisors(loveAppRagCloudAdvisor)
                 .call()
