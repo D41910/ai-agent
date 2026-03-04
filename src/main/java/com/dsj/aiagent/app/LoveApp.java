@@ -3,6 +3,7 @@ package com.dsj.aiagent.app;
 
 import com.dsj.aiagent.advisor.MyLoggerAdvisor;
 import com.dsj.aiagent.chatmemory.FileBasedChatMemory;
+import com.dsj.aiagent.rag.LoveAppContextualQueryAugmenterFactory;
 import com.dsj.aiagent.rag.LoveAppRagCustomAdvisorFactory;
 import com.dsj.aiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
@@ -16,9 +17,13 @@ import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.rag.Query;
+import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
+import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.ai.vectorstore.filter.Filter;
+import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -124,6 +129,8 @@ public class LoveApp {
      * @return
      */
     public String doChatWithRag(String message, String chatId) {
+        DocumentRetriever documentRetriever = VectorStoreDocumentRetriever.builder()
+                .vectorStore(loveReportVectorStore).build();
         //查询重写
         String rewrittenMessage = queryRewriter.doQueryRewrite(message);
         ChatResponse chatResponse = chatClient.prompt()
@@ -133,10 +140,20 @@ public class LoveApp {
                 .advisors(new MyLoggerAdvisor())
                 //应用RAG知识库代码
 //                .advisors(new QuestionAnswerAdvisor(loveReportVectorStore))
+                //空上下文处理
+                .advisors(RetrievalAugmentationAdvisor.builder()
+                        .documentRetriever(VectorStoreDocumentRetriever.builder()
+                                .vectorStore(loveReportVectorStore)
+                                .filterExpression(new FilterExpressionBuilder().eq("status","单身").build())
+                                .similarityThreshold(0.99)
+                                .topK(3)
+                                .build())
+                        .queryAugmenter(LoveAppContextualQueryAugmenterFactory.createInstance())
+                        .build())
                 //文档过滤
-                .advisors(
-                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
-                                loveReportVectorStore,"已婚"))
+//                .advisors(
+//                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
+//                                loveReportVectorStore,"已婚"))
                 //应用增强RAG增强服务（基于云知识库服务）
 //                .advisors(loveAppRagCloudAdvisor)
                 .call()
