@@ -55,4 +55,11 @@ class LoveAppTest {
         loveApp.doChatWithRagQueryExpander(message, chatId);
     }
 
+    @Test
+    void doChatWithTools(){
+        String chatId = UUID.randomUUID().toString();
+        String message = "武汉天气怎么样";
+        String answer = loveApp.doChatWithTools(message, chatId);
+    }
+
 }

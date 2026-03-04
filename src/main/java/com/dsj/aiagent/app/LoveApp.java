@@ -6,6 +6,7 @@ import com.dsj.aiagent.chatmemory.FileBasedChatMemory;
 import com.dsj.aiagent.rag.LoveAppContextualQueryAugmenterFactory;
 import com.dsj.aiagent.rag.LoveAppRagCustomAdvisorFactory;
 import com.dsj.aiagent.rag.QueryRewriter;
+import com.dsj.aiagent.tool.WeatherTools;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -15,12 +16,17 @@ import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvi
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.ai.chat.model.ChatResponse;
+import org.springframework.ai.chat.prompt.ChatOptions;
+import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.document.Document;
+import org.springframework.ai.model.tool.ToolCallingChatOptions;
 import org.springframework.ai.rag.Query;
 import org.springframework.ai.rag.advisor.RetrievalAugmentationAdvisor;
 import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
 import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
+import org.springframework.ai.support.ToolCallbacks;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
@@ -60,6 +66,17 @@ public class LoveApp {
     private QueryRewriter queryRewriter;
 
     public LoveApp(ChatModel dashscopeChatModel) {
+//        //给ChatModel绑定工具
+//        // 先得到工具对象
+//        ToolCallback[] weatherTools = ToolCallbacks.from(new WeatherTools());
+//        // 绑定工具到对话
+//        ChatOptions chatOptions = ToolCallingChatOptions.builder()
+//                .toolCallbacks(weatherTools)
+//                .build();
+//        // 构造 Prompt 时指定对话选项
+//        Prompt prompt = new Prompt("北京今天天气怎么样？", chatOptions);
+//        dashscopeChatModel.call(prompt);
+
 
         //初始化基于文件的对话记忆
         String fileDir = System.getProperty("user.dir") + "/tmp/chat-memory";
@@ -68,7 +85,9 @@ public class LoveApp {
         //初始化基于内存的对话记忆
 //        ChatMemory chatMemory = MessageWindowChatMemory.builder().maxMessages(10).build();
         chatClient = ChatClient.builder(dashscopeChatModel)
-                .defaultSystem(SYSTEM_PROMPT)
+//                .defaultSystem(SYSTEM_PROMPT)
+                //注册默认工具
+                .defaultTools(new WeatherTools())
                 .defaultAdvisors(
                         MessageChatMemoryAdvisor.builder(chatMemory).build(),
 //                        //自定义拦截器 Advisor，可按需开启
@@ -144,7 +163,7 @@ public class LoveApp {
                 .advisors(RetrievalAugmentationAdvisor.builder()
                         .documentRetriever(VectorStoreDocumentRetriever.builder()
                                 .vectorStore(loveReportVectorStore)
-                                .filterExpression(new FilterExpressionBuilder().eq("status","单身").build())
+                                .filterExpression(new FilterExpressionBuilder().eq("status", "单身").build())
                                 .similarityThreshold(0.99)
                                 .topK(3)
                                 .build())
@@ -183,6 +202,22 @@ public class LoveApp {
             List<Document> retrieve = build.retrieve(query);
             System.out.println(retrieve.size());
         }
+    }
+
+    /**
+     * 工具调用
+     *
+     * @param message
+     * @param chatId
+     */
+    public String doChatWithTools(String message, String chatId) {
+        String content = chatClient.prompt()
+                .user(message)
+                .tools(new WeatherTools())
+                .call()
+                .content();
+        return content;
+
     }
 
 
