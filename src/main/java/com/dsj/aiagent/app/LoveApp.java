@@ -3,6 +3,7 @@ package com.dsj.aiagent.app;
 
 import com.dsj.aiagent.advisor.MyLoggerAdvisor;
 import com.dsj.aiagent.chatmemory.FileBasedChatMemory;
+import com.dsj.aiagent.rag.QueryRewriter;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
@@ -17,6 +18,7 @@ import org.springframework.ai.rag.Query;
 import org.springframework.ai.rag.preretrieval.query.expansion.MultiQueryExpander;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.vectorstore.VectorStore;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -47,6 +49,9 @@ public class LoveApp {
 
     @Resource
     private ChatModel dashscopeChatModel;
+
+    @Resource
+    private QueryRewriter queryRewriter;
 
     public LoveApp(ChatModel dashscopeChatModel) {
 
@@ -118,8 +123,10 @@ public class LoveApp {
      * @return
      */
     public String doChatWithRag(String message, String chatId) {
+        //查询重写
+        String rewrittenMessage = queryRewriter.doQueryRewrite(message);
         ChatResponse chatResponse = chatClient.prompt()
-                .user(message)
+                .user(rewrittenMessage)
                 .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, chatId))
                 //开启日志便于观察效果
                 .advisors(new MyLoggerAdvisor())
