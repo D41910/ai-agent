@@ -65,6 +65,9 @@ public class LoveApp {
     @Resource
     private QueryRewriter queryRewriter;
 
+    @Resource
+    private ToolCallback[] allTools;
+
     public LoveApp(ChatModel dashscopeChatModel) {
 //        //给ChatModel绑定工具
 //        // 先得到工具对象
@@ -211,11 +214,15 @@ public class LoveApp {
      * @param chatId
      */
     public String doChatWithTools(String message, String chatId) {
-        String content = chatClient.prompt()
+        ChatResponse chatResponse = chatClient
+                .prompt()
                 .user(message)
-                .tools(new WeatherTools())
+                .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, chatId))
+                .toolCallbacks(allTools)
                 .call()
-                .content();
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content: {}" + content);
         return content;
 
     }
