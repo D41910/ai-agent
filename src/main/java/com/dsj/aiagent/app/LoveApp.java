@@ -161,17 +161,17 @@ public class LoveApp {
                 //开启日志便于观察效果
                 .advisors(new MyLoggerAdvisor())
                 //应用RAG知识库代码
-//                .advisors(new QuestionAnswerAdvisor(loveReportVectorStore))
+                .advisors(new QuestionAnswerAdvisor(loveReportVectorStore))
                 //空上下文处理
-                .advisors(RetrievalAugmentationAdvisor.builder()
-                        .documentRetriever(VectorStoreDocumentRetriever.builder()
-                                .vectorStore(loveReportVectorStore)
-                                .filterExpression(new FilterExpressionBuilder().eq("status", "单身").build())
-                                .similarityThreshold(0.99)
-                                .topK(3)
-                                .build())
-                        .queryAugmenter(LoveAppContextualQueryAugmenterFactory.createInstance())
-                        .build())
+//                .advisors(RetrievalAugmentationAdvisor.builder()
+//                        .documentRetriever(VectorStoreDocumentRetriever.builder()
+//                                .vectorStore(loveReportVectorStore)
+//                                .filterExpression(new FilterExpressionBuilder().eq("status", "单身").build())
+//                                .similarityThreshold(0.99)
+//                                .topK(3)
+//                                .build())
+//                        .queryAugmenter(LoveAppContextualQueryAugmenterFactory.createInstance())
+//                        .build())
                 //文档过滤
 //                .advisors(
 //                        LoveAppRagCustomAdvisorFactory.createLoveAppRagCustomAdvisor(
