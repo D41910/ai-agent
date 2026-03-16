@@ -7,10 +7,30 @@ spring:
   ai:
     mcp:
       client:
-        toolcallback:
-          enabled: true
-        stdio:
-          servers-configuration: classpath:mcp-servers.json
+        servers-configuration: classpath:mcp-servers.json
+#        enabled: true
+#        name: my-mcp-client
+#        version: 1.0.0
+#        request-timeout: 30s
+#        type: SYNC
+#        sse:
+#          connections:
+#            server1:
+#              url: http://localhost:8080
+#        stdio:
+#          connections:
+#            server1:
+#              command: /path/to/server
+#              args:
+#                - --port=8080
+#              env:
+#                API_KEY: your-api-key
+# MCP服务端 使用spring-ai-starter-mcp-server
+      server:
+        name: stdio-mcp-server
+        version: 1.0.0
+        stdio: true
+        type: SYNC
   vectorstore:
     pgvector:
     index-type: HNSW
