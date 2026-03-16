@@ -1,0 +1,14 @@
+{
+  "servers": {
+    "amap-maps": {
+      "command": "/Users/dongsijun/.nvm/versions/node/v24.14.0/bin/npx",
+      "args": [
+        "-y",
+        "@amap/amap-maps-mcp-server"
+      ],
+      "env": {
+        "AMAP_MAPS_API_KEY": "a7e35de65f0663ac6f673476f77fcdf8"
+      }
+    }
+  }
+}

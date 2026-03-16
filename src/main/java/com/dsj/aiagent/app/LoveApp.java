@@ -27,6 +27,7 @@ import org.springframework.ai.rag.retrieval.search.DocumentRetriever;
 import org.springframework.ai.rag.retrieval.search.VectorStoreDocumentRetriever;
 import org.springframework.ai.support.ToolCallbacks;
 import org.springframework.ai.tool.ToolCallback;
+import org.springframework.ai.tool.ToolCallbackProvider;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
@@ -67,6 +68,23 @@ public class LoveApp {
 
     @Resource
     private ToolCallback[] allTools;
+
+    @Resource
+    private ToolCallbackProvider toolCallbackProvider;
+
+    public String doChatWithMcp(String message,String chatId){
+        ChatResponse chatResponse = chatClient
+                .prompt()
+                .user(message)
+                .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, chatId))
+                .advisors(new MyLoggerAdvisor())
+                .toolCallbacks(toolCallbackProvider)
+                .call()
+                .chatResponse();
+        String content = chatResponse.getResult().getOutput().getText();
+        log.info("content : {}", content);
+        return content;
+    }
 
     public LoveApp(ChatModel dashscopeChatModel) {
 //        //给ChatModel绑定工具

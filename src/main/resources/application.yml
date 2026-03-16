@@ -5,6 +5,12 @@ spring:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
   ai:
+    mcp:
+      client:
+        toolcallback:
+          enabled: true
+        stdio:
+          servers-configuration: classpath:mcp-servers.json
   vectorstore:
     pgvector:
     index-type: HNSW
@@ -38,4 +44,6 @@ logging:
     file: UTF-8
     console: UTF-8
   level:
+    org.springframework.ai.mcp: DEBUG
+    io.modelcontextprotocol: DEBUG
     org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor: debug
