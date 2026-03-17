@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Bean;
 @SpringBootApplication
 public class AiAgentApplication {
 
-    @Bean
-    public ToolCallbackProvider weatherTools(WeatherService weatherService) {
-        return MethodToolCallbackProvider.builder()
-                .toolObjects(weatherService)
-                .build();
-    }
+//    @Bean
+//    public ToolCallbackProvider weatherTools(WeatherService weatherService) {
+//        return MethodToolCallbackProvider.builder()
+//                .toolObjects(weatherService)
+//                .build();
+//    }
 
     public static void main(String[] args) {
         SpringApplication.run(AiAgentApplication.class, args);
