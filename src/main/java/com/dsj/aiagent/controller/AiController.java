@@ -1,9 +1,10 @@
 package com.dsj.aiagent.controller;
 
+import com.dsj.aiagent.agent.DsjManus;
 import com.dsj.aiagent.app.LoveApp;
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.tool.ToolCallbackProvider;
+import org.springframework.ai.tool.ToolCallback;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.ServerSentEvent;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,10 +27,16 @@ public class AiController {
     private LoveApp loveApp;
 
     @Resource
-    private ToolCallbackProvider allTools;
+    private ToolCallback[] allTools;
 
     @Resource
-    private ChatModel chatModel;
+    private ChatModel dashscopeChatModel;
+
+    @GetMapping(value = "/manus/chat")
+    public SseEmitter doChatWithManus(String message){
+        DsjManus dsjManus = new DsjManus(allTools,dashscopeChatModel);
+        return dsjManus.runStream(message);
+    }
 
     @GetMapping("/love_app/char/sync")
     public Flux<String> doChatWithLoveAppSync(String message, String chatId) {
