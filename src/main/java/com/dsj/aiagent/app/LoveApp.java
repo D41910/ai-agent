@@ -33,6 +33,7 @@ import org.springframework.ai.vectorstore.filter.Filter;
 import org.springframework.ai.vectorstore.filter.FilterExpressionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 
@@ -71,6 +72,15 @@ public class LoveApp {
 
     @Resource
     private ToolCallbackProvider toolCallbackProvider;
+
+
+    public Flux<String> doChatBySystem(String message, String chatId) {
+        return chatClient.prompt()
+                .user(message)
+                .advisors(advisorSpec -> advisorSpec.param(CONVERSATION_ID, chatId))
+                .stream()
+                .content();
+    }
 
     public String doChatWithMcp(String message,String chatId){
         ChatResponse chatResponse = chatClient
